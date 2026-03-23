@@ -37,29 +37,12 @@
   const stopButton = document.querySelector('#stop');
 
   //Your code goes here
-
-// Get elements
-const msg = new SpeechSynthesisUtterance();
-
-const textInput = document.querySelector('textarea');
-const voiceSelect = document.querySelector('select');
-
-const speakButton = document.querySelector('#speak');
-const stopButton = document.querySelector('#stop');
-
-const rateSlider = document.querySelector('#rate');
-const pitchSlider = document.querySelector('#pitch');
-
-let voices = [];
-
-// Load voices
-function populateVoices() {
-
+	function populateVoices() {
   voices = speechSynthesis.getVoices();
 
-  voiceSelect.innerHTML = voices
-    .map((voice, index) => {
-      return `<option value="${index}">
+  voicesDropdown.innerHTML = voices
+    .map(voice => {
+      return `<option value="${voice.name}">
                 ${voice.name} (${voice.lang})
               </option>`;
     })
@@ -68,9 +51,7 @@ function populateVoices() {
 
 // Set selected voice
 function setVoice() {
-
-  const selectedIndex = voiceSelect.value;
-  msg.voice = voices[selectedIndex];
+  msg.voice = voices.find(voice => voice.name === this.value);
 
   // Restart speech if already speaking
   if (speechSynthesis.speaking) {
@@ -79,38 +60,23 @@ function setVoice() {
   }
 }
 
-// Speak text
-function speakText() {
+// Speak function
+function speak() {
 
-  if (textInput.value.trim() === "") return;
-
-  msg.text = textInput.value;
-
-  speechSynthesis.cancel(); // stop previous
-  speechSynthesis.speak(msg);
+  if (msg.text !== "") {
+    speechSynthesis.cancel();
+    speechSynthesis.speak(msg);
+  }
 }
 
-// Stop speech
-function stopText() {
-
+// Stop function
+function stop() {
   speechSynthesis.cancel();
 }
 
-// Update rate
-function updateRate() {
-
-  msg.rate = rateSlider.value;
-
-  if (speechSynthesis.speaking) {
-    speechSynthesis.cancel();
-    speechSynthesis.speak(msg);
-  }
-}
-
-// Update pitch
-function updatePitch() {
-
-  msg.pitch = pitchSlider.value;
+// Update rate and pitch
+function setOption() {
+  msg[this.name] = this.value;
 
   if (speechSynthesis.speaking) {
     speechSynthesis.cancel();
@@ -118,18 +84,31 @@ function updatePitch() {
   }
 }
 
-// Event Listeners
+// Update text
+function setText() {
+  msg.text = this.value;
+}
+
+// Load voices
 speechSynthesis.addEventListener('voiceschanged', populateVoices);
 
-voiceSelect.addEventListener('change', setVoice);
+// Events
+voicesDropdown.addEventListener('change', setVoice);
 
-speakButton.addEventListener('click', speakText);
+options.forEach(option =>
+  option.addEventListener('change', setOption)
+);
 
-stopButton.addEventListener('click', stopText);
+document
+  .querySelector('[name="text"]')
+  .addEventListener('input', setText);
 
-rateSlider.addEventListener('input', updateRate);
+speakButton.addEventListener('click', speak);
 
-pitchSlider.addEventListener('input', updatePitch);
+stopButton.addEventListener('click', stop);
+
+// Default text load
+msg.text = document.querySelector('[name="text"]').value;
 
 </script>
 
