@@ -37,6 +37,103 @@
   const stopButton = document.querySelector('#stop');
 
   //Your code goes here
+
+	<script>
+
+// Get elements
+const msg = new SpeechSynthesisUtterance();
+
+const textInput = document.querySelector('textarea');
+const voiceSelect = document.querySelector('select');
+
+const speakButton = document.querySelector('#speak');
+const stopButton = document.querySelector('#stop');
+
+const rateSlider = document.querySelector('#rate');
+const pitchSlider = document.querySelector('#pitch');
+
+let voices = [];
+
+// Load voices
+function populateVoices() {
+
+  voices = speechSynthesis.getVoices();
+
+  voiceSelect.innerHTML = voices
+    .map((voice, index) => {
+      return `<option value="${index}">
+                ${voice.name} (${voice.lang})
+              </option>`;
+    })
+    .join('');
+}
+
+// Set selected voice
+function setVoice() {
+
+  const selectedIndex = voiceSelect.value;
+  msg.voice = voices[selectedIndex];
+
+  // Restart speech if already speaking
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    speechSynthesis.speak(msg);
+  }
+}
+
+// Speak text
+function speakText() {
+
+  if (textInput.value.trim() === "") return;
+
+  msg.text = textInput.value;
+
+  speechSynthesis.cancel(); // stop previous
+  speechSynthesis.speak(msg);
+}
+
+// Stop speech
+function stopText() {
+
+  speechSynthesis.cancel();
+}
+
+// Update rate
+function updateRate() {
+
+  msg.rate = rateSlider.value;
+
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    speechSynthesis.speak(msg);
+  }
+}
+
+// Update pitch
+function updatePitch() {
+
+  msg.pitch = pitchSlider.value;
+
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    speechSynthesis.speak(msg);
+  }
+}
+
+// Event Listeners
+speechSynthesis.addEventListener('voiceschanged', populateVoices);
+
+voiceSelect.addEventListener('change', setVoice);
+
+speakButton.addEventListener('click', speakText);
+
+stopButton.addEventListener('click', stopText);
+
+rateSlider.addEventListener('input', updateRate);
+
+pitchSlider.addEventListener('input', updatePitch);
+
+</script>
 </script>
 
 </body>
